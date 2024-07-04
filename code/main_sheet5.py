@@ -50,7 +50,7 @@ if 0:
                                     linesearch = 'Barzilai-Borwein')
     print(f'Error between analytic solution Ud and u_BB {fom.space_time_norm(u_BB-fom.cost_data.Ud,"control")}')
     
-    if 0:
+    if 1:
         # solve wth Backtracking gradient method
         u_BT, history_BT = fom.solve_ocp(U_0, 
                                         method = "GradientMethod",
@@ -60,7 +60,7 @@ if 0:
 
 #%% optimization - scenario 2: ud = 0 and study the impact of the regularization
 
-if 1:
+if 0:
     
     # set ud to be zero
     Ud = np.zeros((fom.pde.input_dim, fom.time_disc.K))

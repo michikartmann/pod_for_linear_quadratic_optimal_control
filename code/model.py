@@ -138,7 +138,7 @@ class model():
         # strategy 1 (OBD)
         if 0:
             p = np.zeros((A.shape[0],))
-            p += self.cost_data.weights[2]@ZT
+            p += self.cost_data.terminal_parameter*ZT
         
         # strategy 2 (DBO)
         else:
