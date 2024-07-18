@@ -60,7 +60,7 @@ if 0:
 
 #%% optimization - scenario 2: ud = 0 and study the impact of the regularization
 
-if 0:
+if 1:
     
     # set ud to be zero
     Ud = np.zeros((fom.pde.input_dim, fom.time_disc.K))
@@ -69,7 +69,7 @@ if 0:
     fom.offline_phase_optimization(Yd = Y, 
                                    YT = Y[:,-1],
                                    Ud = Ud)
-    fom.plot_3d(Y[:,-1], title = 'target state at end time')
+    fom.plot_3d(Y[:,5], title = 'target state at time step 5')
     
     # starting value and solver options
     U_0 = 5*np.ones((fom.input_dim, fom.time_disc.K)) 
@@ -97,6 +97,6 @@ if 0:
                                         linesearch = 'Barzilai-Borwein')
         
         # plot yd, plot adjoint state, state, control, norm von adjoint
-        fom.plot_3d(history_BB['Y_opt'][:,-1], title = 'optimal state at end time')
-        fom.plot_3d(history_BB['P_opt'][:,-1], title = 'optimal adjoint state at end time')
+        fom.plot_3d(history_BB['Y_opt'][:,5], title = 'optimal state at time step 5')
+        fom.plot_3d(history_BB['P_opt'][:,5], title = 'optimal adjoint state at time step 5')
         print(f'Regularization parameter {regularization: 2.2e}: L2(V)- adjoint norm: {fom.space_time_norm(history_BB["P_opt"],"H1")}.')

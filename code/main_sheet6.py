@@ -15,7 +15,7 @@ fom = discretize(dx = 50, K = 100)
 fom.print_info()
 
 # solve state to get Yd
-U = 1*np.ones((fom.pde.input_dim, fom.time_disc.K))
+U = np.random.uniform(-2, 5, (fom.pde.input_dim, fom.time_disc.K))#10*np.random.rand(fom.pde.input_dim, fom.time_disc.K)# 1*np.ones((fom.pde.input_dim, fom.time_disc.K))#40*np.random.rand(fom.pde.input_dim, fom.time_disc.K)
 Y, time = fom.solve_state(U, print_ = False)
 if 0:
     fom.visualize_trajectory(Y)
@@ -28,13 +28,15 @@ Ud = np.zeros((fom.pde.input_dim, fom.time_disc.K))
 # get YD, UD and do offline phase for optimization
 fom.offline_phase_optimization(Yd = Y, 
                                YT = Y[:,-1],
-                               Ud = Ud)
-fom.plot_3d(Y[:,-1], title = 'target state at end time')
+                               Ud = U#Ud
+                               )
+fom.plot_3d(Y[:,5], title = 'target state at time step 5')
 
 #%% FOM optimization
 
 # starting value and solver options
-U_0 = 5*np.ones((fom.input_dim, fom.time_disc.K)) 
+
+U_0 = np.random.uniform(-2, 5, (fom.pde.input_dim, fom.time_disc.K))
 solver_options = fom.set_options(tol = 1e-10,
                             maxit = 300, 
                             save = False, 
@@ -45,7 +47,7 @@ solver_options = fom.set_options(tol = 1e-10,
 if 1:
     
     # set regularization
-    fom.cost_data.regularization_parameter = 1e-3
+    fom.cost_data.regularization_parameter = 1e-5
 
     # derivative check
     if 0:
@@ -58,14 +60,14 @@ if 1:
                                     linesearch = 'Barzilai-Borwein')
     
     # plot yd, plot adjoint state, state, control, norm von adjoint
-    fom.plot_3d(history_BB['Y_opt'][:,-1], title = 'FOM optimal state at end time')
-    fom.plot_3d(history_BB['P_opt'][:,-1], title = 'FOM optimal adjoint state at end time')
+    fom.plot_3d(history_BB['Y_opt'][:,5], title = 'FOM optimal state at time step 5')
+    fom.plot_3d(history_BB['P_opt'][:,5], title = 'FOM optimal adjoint state at tim step 5')
 
 #%% construct ROM out of optimal FOM snapshots
 
 l = 20
 
-if 1: # train with optimal snapshots
+if 0: # train with optimal snapshots
     Snapshots = [history_BB['Y_opt'], history_BB['P_opt']]
 else: # train with initial snapshots
     Y, P = fom.get_snapshots(U_0)
@@ -89,8 +91,8 @@ if 1:
     if 0:
         rom.derivative_check()
 
-    # starting value and solver options
-    U_0 = 5*np.ones((fom.input_dim, fom.time_disc.K)) 
+    # # starting value and solver options
+    # U_0 = 5*np.ones((fom.input_dim, fom.time_disc.K)) 
 
     # solve with Barzilai-Borwein gradient method
     u_BB_ROM, history_BB_ROM = rom.solve_ocp(U_0, 
@@ -99,10 +101,12 @@ if 1:
                                     linesearch = 'Barzilai-Borwein')
     
     # plot yd, plot adjoint state, state, control, norm von adjoint
-    fom.plot_3d(pod_object.ROMtoFOM(history_BB_ROM['Y_opt'][:,-1]), title = 'ROM optimal state at end time')
-    fom.plot_3d(pod_object.ROMtoFOM(history_BB_ROM['P_opt'][:,-1]), title = 'ROM optimal adjoint state at end time')
+    fom.plot_3d(pod_object.ROMtoFOM(history_BB_ROM['Y_opt'][:,5]), title = 'ROM optimal state at time step 5')
+    fom.plot_3d(pod_object.ROMtoFOM(history_BB_ROM['P_opt'][:,5]), title = 'ROM optimal adjoint state at time step 5')
     
     a_posteriori_est, _, _ = fom.optimal_control_error_est(u_BB_ROM)
     true_error = fom.space_time_norm(u_BB_ROM-u_BB,"control")
     print(f'Error in optimal control {true_error}, a posteriori error estimate {a_posteriori_est}, effectivity {true_error/a_posteriori_est}')
     print(f'FOM time {history_BB["time"]}, ROM time {history_BB_ROM["time"]}, Speed-up {history_BB["time"]/history_BB_ROM["time"]}')
+    
+    
